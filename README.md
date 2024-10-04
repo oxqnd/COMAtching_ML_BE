@@ -78,10 +78,7 @@ project/
 3. **필요한 패키지 설치**
     
     ```bash
-    bash
-    코드 복사
     pip install -r requirements.txt
-    
     ```
     
 
