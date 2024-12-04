@@ -168,4 +168,4 @@ docker-compose.yml
 # RabbitMQ Definitions
 rabbitmq_definitions.json
 
-nohub.out
+nohup.out

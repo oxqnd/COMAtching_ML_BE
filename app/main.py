@@ -1,5 +1,5 @@
 from app import app
-from app.api import users, recommend
+from app.routes import users, recommend
 from app.services import match_request_consumer, user_crud_consumer
 import asyncio
 
