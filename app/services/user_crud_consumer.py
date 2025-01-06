@@ -2,7 +2,7 @@ import aio_pika
 import asyncio
 import json
 import aiohttp
-from app.config import RABBITMQ_URL
+from app.config import RABBITMQ_URL, ML_BE_URL, ML_BE_PORT
 
 async def consume_user_crud_request_queue():
     try:
@@ -29,7 +29,7 @@ async def consume_user_crud_request_queue():
                             print(f"Invalid message: {message_data}")
                             continue
 
-                        url = f"http://localhost:8080/users"
+                        url = f"http://{ML_BE_URL}:{ML_BE_PORT}/users"
                         method = None
 
                         if request_type == "CREATE":

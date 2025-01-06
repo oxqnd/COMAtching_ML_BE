@@ -5,9 +5,15 @@ import asyncio
 
 @app.on_event("startup")
 async def startup_event():
-    asyncio.create_task(match_request_consumer.consume_from_match_request_queue())
-    asyncio.create_task(user_crud_consumer.consume_user_crud_request_queue())
-
+    print("Starting up FastAPI application...")
+    try:
+        asyncio.create_task(match_request_consumer.consume_from_match_request_queue())
+        asyncio.create_task(user_crud_consumer.consume_user_crud_request_queue())
+        print("Consumers started successfully.")
+    except Exception as e:
+        print(f"Error during startup: {e}")
+        raise e
+            
 @app.get("/")
 async def read_root():
     return {"message": "Hello World"}
