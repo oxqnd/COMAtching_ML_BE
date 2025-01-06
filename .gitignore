@@ -163,7 +163,7 @@ cython_debug/
 #.idea/
 
 # Docker Compose
-docker-compose.yml
+#docker-compose.yml
 
 # RabbitMQ Definitions
 rabbitmq_definitions.json
