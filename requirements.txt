@@ -1,7 +1,8 @@
-fastapi
+fastapi==0.99
 uvicorn
 python-dotenv
 pika
+pandas
 aio_pika
 aiohttp
 requests
