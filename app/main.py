@@ -1,6 +1,6 @@
 from app import app
 from app.routes import users, recommend
-from app.services import match_request_consumer, user_crud_consumer
+from app.consumers import match_request_consumer, user_crud_consumer
 import asyncio
 
 @app.on_event("startup")
