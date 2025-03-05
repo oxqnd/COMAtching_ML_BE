@@ -36,4 +36,10 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-    entrypoint: ["sh", "-c", "rabbitmq-server & sleep 10 && rabbitmqctl import_definitions /etc/rabbitmq/definitions.json && while ! rabbitmqctl status; do sleep 5; done && tail -f /dev/null"]
+    entrypoint: >
+      sh -c "rabbitmq-server &
+        sleep 10 &&
+        until rabbitmqctl status; do sleep 5; done &&
+        rabbitmqctl import_definitions /etc/rabbitmq/definitions.json &&
+        tail -f /dev/null"
+
