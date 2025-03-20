@@ -1,3 +1,5 @@
+version: "3.8"
+
 services:
   app:
     build:
@@ -5,7 +7,7 @@ services:
       dockerfile: Dockerfile
     container_name: fastapi_app
     ports:
-      - "8080:8080"
+      - "40200:8080"
     depends_on:
       rabbitmq:
         condition: service_healthy
@@ -17,14 +19,16 @@ services:
     volumes:
       - .:/app
     working_dir: /app
+    networks:
+      - comatching_beprod_backend
 
   rabbitmq:
     image: rabbitmq:3-management
     container_name: rabbitmq
     ports:
-      - "5672:5672"
-      - "15672:15672"
-      - "25672:25672"
+      - "40201:5672"
+      - "40202:15672"
+      - "40203:25672"
     environment:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_USERNAME}
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
@@ -43,4 +47,9 @@ services:
         until rabbitmqctl status; do sleep 5; done &&
         rabbitmqctl import_definitions /etc/rabbitmq/definitions.json &&
         tail -f /dev/null"
+    networks:
+      - comatching_beprod_backend
 
+networks:
+  comatching_beprod_backend:
+    external: true

@@ -44,7 +44,7 @@ async def create_user(user: dict):
 
         response_content = {}
         # 필수 필드 확인
-        required_fields = ["type", "uuid", "age", "contactFrequency", "gender", "hobby", "major", "mbti", "duplication"]
+        required_fields = ["type", "uuid", "age", "contactFrequency", "gender", "hobby", "major", "mbti"]
         for field in required_fields:
             if field not in user:
                 response_content = {"stateCode": "CRUD-001", "message": "Field Missing", "requestType": "CREATE", "userId": user["uuid"]}
@@ -92,7 +92,7 @@ async def update_user(user: dict):
 
         response_content = {}
 
-        required_fields = ["type", "uuid", "age", "contactFrequency", "gender", "hobby", "major", "mbti", "duplication"]
+        required_fields = ["type", "uuid", "age", "contactFrequency", "gender", "hobby", "major", "mbti"]
         ## 에러 처리 예시
         for field in required_fields:
             if field not in user:
@@ -160,7 +160,7 @@ async def delete_user(user: dict):
 
         response_content = {}
 
-        required_fields = ["type", "uuid", "age", "contactFrequency", "gender", "hobby", "major", "mbti", "duplication"]
+        required_fields = ["type", "uuid", "age", "contactFrequency", "gender", "hobby", "major", "mbti"]
         ## 에러 처리 예시
         for field in required_fields:
             if field not in user:

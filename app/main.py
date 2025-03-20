@@ -13,7 +13,7 @@ async def startup_event():
     except Exception as e:
         print(f"Error during startup: {e}")
         raise e
-            
+
 @app.get("/")
 async def read_root():
     return {"message": "Hello World"}
