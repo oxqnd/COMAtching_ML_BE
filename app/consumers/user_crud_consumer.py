@@ -4,12 +4,12 @@ import json
 import aiohttp
 from app.config import RABBITMQ_URL, ML_BE_URL, ML_BE_PORT
 
-async def consume_user_crud_request_queue():
+async def consume_user_crud_queue():
     try:
         connection = await aio_pika.connect_robust(RABBITMQ_URL)
         async with connection:
             channel = await connection.channel()
-            queue = await channel.declare_queue('user-crud-request', durable=True)
+            queue = await channel.declare_queue('user-crud', durable=True)
 
             async for message in queue:
                 async with message.process():
@@ -46,11 +46,11 @@ async def consume_user_crud_request_queue():
                                         response_json = await response.json()
                                 elif method == "PUT":
                                     async with session.put(url, json=message_data) as response:
-                                        response_json = await response.json()     
+                                        response_json = await response.json()
                                 elif method == "DELETE":
                                     async with session.delete(url, json=message_data) as response:
                                         response_json = await response.json()
-                                print(f"Response from {method} {url}: {response.status}, {response_json}")       
+                                print(f"Response from {method} {url}: {response.status}, {response_json}")
                         else:
                             print(f"Unknown request type: {request_type}")
 
