@@ -58,7 +58,6 @@ async def create_user(user: dict):
 
         if os.path.exists(csv_file_path):
                 df = read_csv_data(csv_file_path)
-                print(df)
                 # 중복된 UUID 확인
                 if user["uuid"] in df["uuid"].values:
                     response_content = {"stateCode": "CRUD-004", "message": "User Already Exists"}
