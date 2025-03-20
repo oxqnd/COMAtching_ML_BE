@@ -42,11 +42,14 @@ def write_csv_data(file_path, updated_data=None, delete_uuid=None):
 
         updated_rows = []
         for row in data_rows:
+            uuid_value = row[0]
             if delete_uuid and row[0] == delete_uuid:
                 continue
 
             if updated_data and row[0] in updated_data:
-                row = [updated_data[row[0]].get(col, val) for col, val in zip(reader[1], row)]
+                row = [updated_data[uuid_value].get(key, row[i]) for i, key in enumerate(updated_data[uuid_value].keys())]
+                print("row:")
+                print(row)
 
             updated_rows.append(row)
 
@@ -118,6 +121,7 @@ async def update_user(user: dict):
                 response_content = {"stateCode": "CRUD-001", "message": "Field Missing", "requestType": "UPDATE", "userId": user["uuid"]}
                 raise HTTPException(status_code=400, detail=f"Missing required field: {field}")
 
+        user["duplication"] = "FALSE"
         csv_file_path = CSV_FILE_PATH
 
         if not os.path.exists(csv_file_path):
@@ -139,6 +143,7 @@ async def update_user(user: dict):
 
         # 업데이트할 데이터 준비
         updated_data = {user["uuid"]: {k: v for k, v in user.items() if k not in ["type", "props"]}}
+        print("updated_data", updated_data)
 
         write_csv_data(csv_file_path, updated_data)
 
