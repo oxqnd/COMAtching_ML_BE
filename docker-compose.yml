@@ -5,25 +5,30 @@ services:
       dockerfile: Dockerfile
     container_name: fastapi_app
     ports:
-      - "8080:8080"
+      - "40200:8080"
     depends_on:
-      - rabbitmq
+      rabbitmq:
+        condition: service_healthy
     environment:
-      RABBITMQ_URL: amqp://${RABBITMQ_USERNAME}:${RABBITMQ_PASSWORD}rabbitmq:5672/
+      RABBITMQ_URL: amqp://${RABBITMQ_USERNAME}:${RABBITMQ_PASSWORD}@rabbitmq:5672/
       PYTHONPATH: /app
     env_file:
       - .env
     volumes:
       - .:/app
     working_dir: /app
+    networks:
+      - comatching_beprod_backend
+    entrypoint: >
+      sh -c "wait-for-it rabbitmq:5672 --timeout=15 && nohup uvicorn app.main:app --host 0.0.0.0 --port 8080 > /app/nohup.out 2>&1"
 
   rabbitmq:
     image: rabbitmq:3-management
     container_name: rabbitmq
     ports:
-      - "5672:5672"
-      - "15672:15672"
-      - "25672:25672"
+      - "40201:5672"
+      - "40202:15672"
+      - "40203:25672"
     environment:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_USERNAME}
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
@@ -36,4 +41,15 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-    entrypoint: ["sh", "-c", "rabbitmq-server & sleep 10 && rabbitmqctl import_definitions /etc/rabbitmq/definitions.json && while ! rabbitmqctl status; do sleep 5; done && tail -f /dev/null"]
+    entrypoint: >
+      sh -c "rabbitmq-server &
+        sleep 10 &&
+        until rabbitmqctl status; do sleep 5; done &&
+        rabbitmqctl import_definitions /etc/rabbitmq/definitions.json &&
+        tail -f /dev/null"
+    networks:
+      - comatching_beprod_backend
+
+networks:
+  comatching_beprod_backend:
+    external: true

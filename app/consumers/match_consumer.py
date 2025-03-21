@@ -4,12 +4,12 @@ import json
 import aiohttp
 from app.config import RABBITMQ_URL, ML_BE_URL, ML_BE_PORT
 
-async def consume_from_match_request_queue():
+async def consume_from_match_queue():
     try:
         connection = await aio_pika.connect_robust(RABBITMQ_URL)
         async with connection:
             channel = await connection.channel()
-            queue = await channel.declare_queue('match-request', durable=True)
+            queue = await channel.declare_queue('match', durable=True)
 
             async for message in queue:
                 async with message.process():

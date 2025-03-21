@@ -169,3 +169,7 @@ cython_debug/
 rabbitmq_definitions.json
 
 nohup.out
+*.csv
+*.log
+.csv
+scripts/
