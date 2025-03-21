@@ -48,8 +48,6 @@ def write_csv_data(file_path, updated_data=None, delete_uuid=None):
 
             if updated_data and row[0] in updated_data:
                 row = [updated_data[uuid_value].get(key, row[i]) for i, key in enumerate(updated_data[uuid_value].keys())]
-                print("row:")
-                print(row)
 
             updated_rows.append(row)
 
