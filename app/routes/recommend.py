@@ -24,7 +24,8 @@ async def recommend_user(request: Request):
         return JSONResponse(content={"error": "Missing properties (reply_to or correlation_id)"}, status_code=400)
 
     # 필수 필드 확인
-    required_fields = ["matcherUuid","contactfrequencyOption","genderOption","hobbyOption","sameMajorOption","ageOption","mbtiOption","myMajor","myAge"]
+    required_fields = ["matcherUuid", "contactfrequencyOption", "genderOption", "hobbyOption",
+                       "sameMajorOption", "ageOption", "mbtiOption", "myMajor", "myAge", "duplicationList"]
     for field in required_fields:
         if field not in data:
             response_content = {"stateCode": "MTCH-001", "message": "Field Missing"}
@@ -39,17 +40,20 @@ async def recommend_user(request: Request):
             await send_to_queue(None, props, response_content)
             return JSONResponse(content=response_content, status_code=404)
 
-        # 데이터 업데이트 (두 번째 행에 데이터를 반영)
-        df.iloc[0, 0] = data['matcherUuid']
-        df.iloc[0, 1] = data['contactfrequencyOption']
-        df.iloc[0, 2] = data['genderOption']
-        df.iloc[0, 3] = data['hobbyOption']
-        df.iloc[0, 4] = data['sameMajorOption']
-        df.iloc[0, 5] = data['ageOption']
-        df.iloc[0, 6] = data['mbtiOption']
-        df.iloc[0, 7] = data['myMajor']
-        df.iloc[0, 8] = data['myAge']
-        df.iloc[0, 9] = data['duplicationList']
+        # 데이터 업데이트 (첫 번째 행에 데이터를 반영)
+        df.iloc[0, df.columns.get_loc('matcherUuid')] = data['matcherUuid']
+        df.iloc[0, df.columns.get_loc('contactfrequencyOption')] = data['contactfrequencyOption']
+        df.iloc[0, df.columns.get_loc('genderOption')] = data['genderOption']
+        df.iloc[0, df.columns.get_loc('hobbyOption')] = data['hobbyOption']
+        df.iloc[0, df.columns.get_loc('sameMajorOption')] = data['sameMajorOption']
+        df.iloc[0, df.columns.get_loc('ageOption')] = data['ageOption']
+        df.iloc[0, df.columns.get_loc('mbtiOption')] = data['mbtiOption']
+        df.iloc[0, df.columns.get_loc('myMajor')] = data['myMajor']
+        df.iloc[0, df.columns.get_loc('myAge')] = data['myAge']
+
+        duplication_list = data.get('duplicationList', [])
+        if duplication_list:
+            df.iloc[df['matcherUuid'].isin(duplication_list), 'duplication'] = "TRUE"
 
         # 수정된 내용을 CSV 파일에 저장
         df.to_csv(csv_file_path, index=False, encoding='utf-8')
@@ -72,15 +76,20 @@ async def recommend_user(request: Request):
 
         recommended_candidate = result.stdout.strip()
 
-        if 'Top 1 Similar Person:' in recommended_candidate:
-            start_index = recommended_candidate.find('Top 1 Similar Person:') + len('Top 1 Similar Person:')
+        if '===== Cosine Similarity 추천 결과 =====' in recommended_candidate:
+            start_index = recommended_candidate.find('===== Cosine Similarity 추천 결과 =====') + len('===== Cosine Similarity 추천 결과 =====')
             recommended_user_data = recommended_candidate[start_index:].strip()
 
             lines = recommended_user_data.split('\n')
             user_info = {}
             for line in lines:
-                if line.strip():
-                    key_value = line.split(maxsplit=1)
+                line = line.strip()
+                if not line or line.startswith('---'):
+                    continue
+                if 'uuid:' in line:
+                    user_info['matcherUuid'] = line.split('uuid:')[1].strip()
+                elif ':' in line:
+                    key_value = line.split(':', 1)
                     if len(key_value) == 2:
                         key, value = key_value
                         user_info[key.strip()] = value.strip()
