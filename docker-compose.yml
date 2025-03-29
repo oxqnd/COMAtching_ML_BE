@@ -18,7 +18,7 @@ services:
       - .:/app
     working_dir: /app
     networks:
-      - comatching_beprod_backend
+      - comatching_be_prod
     entrypoint: >
       sh -c "wait-for-it rabbitmq:5672 --timeout=15 && nohup uvicorn app.main:app --host 0.0.0.0 --port 8080 > /app/nohup.out 2>&1"
 
@@ -48,8 +48,8 @@ services:
         rabbitmqctl import_definitions /etc/rabbitmq/definitions.json &&
         tail -f /dev/null"
     networks:
-      - comatching_beprod_backend
+      - comatching_be_prod
 
 networks:
-  comatching_beprod_backend:
+  comatching_be_prod:
     external: true
