@@ -1,5 +1,5 @@
 from app import app
-from app.routes import users, recommend
+from app.routes import users, recommend, classifier
 from app.consumers import match_consumer, user_crud_consumer, classifier_consumer
 import asyncio
 
@@ -22,3 +22,4 @@ async def read_root():
 # 라우터 등록
 app.include_router(users.router)
 app.include_router(recommend.router)
+app.incluse_router(classifier.router)
