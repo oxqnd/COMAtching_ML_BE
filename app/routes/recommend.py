@@ -66,22 +66,44 @@ async def recommend_user(request: Request):
 
     # ./new/run.py 파일 실행
     try:
-        result = subprocess.run(['python', ml_file_path], capture_output=True, text=True)
-        if result.returncode != 0:
+        # JSON 인자 생성
+        json_data = json.dumps({
+            "requestId": data.get("matcherUuid"),  # 예시로 matcherUuid를 사용
+            "matcherUuid": data.get("matcherUuid"),
+            "ageOption": data.get("ageOption"),
+            "mbtiOption": data.get("mbtiOption"),
+            "hobbyOption": data.get("hobbyOption"),
+            "contactFrequencyOption": data.get("contactfrequencyOption"),
+            "genderOption": data.get("genderOption"),
+            "sameMajorOption": data.get("sameMajorOption"),
+            "duplication": data.get("duplicationList"),
+            "importantOption": "ageOption"
+        })
 
+        # subprocess로 실행하며 JSON 인자를 넘김
+        result = subprocess.run(
+            ['python', ml_file_path, '--request', json_data],
+            capture_output=True,
+            text=True
+        )
+        
+        # 실행 성공 여부 확인
+        if result.returncode != 0:
             response_content = {"stateCode": "MTCH-005", "message": "Error running model"}
             await send_to_queue(None, props, response_content)
-            response_content.update({"details": str(e)})
+            response_content.update({"details": result.stderr.strip()})
             return JSONResponse(content=response_content, status_code=500)
 
         recommended_candidate = result.stdout.strip()
 
+        # 추천 결과 파싱
         if '===== Cosine Similarity 추천 결과 =====' in recommended_candidate:
             start_index = recommended_candidate.find('===== Cosine Similarity 추천 결과 =====') + len('===== Cosine Similarity 추천 결과 =====')
             recommended_user_data = recommended_candidate[start_index:].strip()
 
             lines = recommended_user_data.split('\n')
             user_info = {}
+            
             for line in lines:
                 line = line.strip()
                 if not line or line.startswith('---'):
@@ -97,14 +119,13 @@ async def recommend_user(request: Request):
             user_index = user_info.get('matcherUuid')
             if user_index:
                 recommended_user = {"enemyUuid": user_index}
-
             else:
                 recommended_user = {}
 
         else:
             response_content = {"stateCode": "MTCH-006", "message": "Model return error"}
             await send_to_queue(None, props, response_content)
-            response_content.update({"details": str(e)})
+            response_content.update({"details": "Recommended result format error"})
             return JSONResponse(content=response_content, status_code=500)
 
     except Exception as e:
@@ -112,7 +133,6 @@ async def recommend_user(request: Request):
         await send_to_queue(None, props, response_content)
         response_content.update({"details": str(e)})
         return JSONResponse(content=response_content, status_code=500)
-
     # 추가
     response_content = {"stateCode": "MTCH-000", "message": "Success"}
     # 수정
