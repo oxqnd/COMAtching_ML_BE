@@ -6,3 +6,4 @@ pandas
 aio_pika
 aiohttp
 requests
+openai
