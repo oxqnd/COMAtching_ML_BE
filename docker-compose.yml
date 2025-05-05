@@ -20,7 +20,7 @@ services:
     networks:
       - comatching_be_prod
     entrypoint: >
-      sh -c "wait-for-it rabbitmq:5672 --timeout=15 && nohup uvicorn app.main:app --host 0.0.0.0 --port 8080 > /app/nohup.out 2>&1"
+      sh -c "wait-for-it rabbitmq:5672 --timeout=15 && nohup uvicorn app.main:app --host 0.0.0.0 --port 8080 --log-level debug > /app/nohup.out 2>&1"
 
   rabbitmq:
     image: rabbitmq:3-management

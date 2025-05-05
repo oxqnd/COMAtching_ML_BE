@@ -22,4 +22,4 @@ async def read_root():
 # 라우터 등록
 app.include_router(users.router)
 app.include_router(recommend.router)
-app.incluse_router(classifier.router)
+app.include_router(classifier.router)
