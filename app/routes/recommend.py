@@ -23,10 +23,21 @@ async def recommend_user(request: Request):
 
     # 필수 필드 확인
     required_fields = [
-        "matcherUuid", "contactFrequencyOption", "genderOption", "hobbyOption",
-        "sameMajorOption", "ageOption",
+        "matcherUuid",
+        "contactFrequencyOption",
+        "hobbyOption",
+        "genderOption",
+        "sameMajorOption",
+        "ageOption",
         "mbtiOption",
-        "myMajor"
+        "myMajor",
+        "myAge",
+        "duplicationList",
+        #"importantOption",
+        "mbtiWeight",
+        "ageWeight",
+        "hobbyWeight",
+        "contactFrequencyWeight",
     ]
     for field in required_fields:
         if field not in data:
@@ -52,6 +63,19 @@ async def recommend_user(request: Request):
         df.at[0, 'ageOption'] = data['ageOption']
         df.at[0, 'mbtiOption'] = data['mbtiOption']
         df.at[0, 'myMajor'] = data['myMajor']
+        # df.at[0, 'myAge'] = data['myAge']
+        df.at[0, 'myAge'] = int(data['myAge'])
+        df['myAge'] = df['myAge'].astype('Int64')
+        # df.at[0, 'importantOption'] = data['importantOption']
+        df.at[0, 'mbtiWeight'] = data['mbtiWeight']
+        df.at[0, 'ageWeight'] = data['ageWeight']
+        df.at[0, 'hobbyWeight'] = data['hobbyWeight']
+        df.at[0, 'contactFrequencyWeight'] = data['contactFrequencyWeight']
+        duplication_list = data.get('duplicationList', [])
+        if duplication_list:
+            # df.loc[df['matcherUuid'].isin(duplication_list), 'duplicationList'] = "TRUE"
+            target_indexes = df[df['matcherUuid'].isin(duplication_list)].index
+            df.iloc[target_indexes, 7] = "TRUE"
 
         df.to_csv(csv_file_path, index=False, encoding='utf-8')
 
@@ -115,5 +139,9 @@ async def recommend_user(request: Request):
     response_content.update(recommended_user)
     print("[DEBUG] Final response content:", response_content)
     print("[DEBUG] Sending to queue:", props.get('reply_to'))
+
+    df.iloc[2:, 7] = df.iloc[2:, 7].replace("TRUE", "FALSE")
+    df.to_csv(csv_file_path, index=False, encoding='utf-8')
+
     await send_to_queue(None, props, response_content)
     return JSONResponse(content=response_content, status_code=200)
