@@ -13,7 +13,7 @@ router = APIRouter()
 def read_csv_data(file_path):
     """CSV 파일 읽기"""
     if not os.path.exists(file_path):
-        raise FileNotFoundError("CSV file not found")
+        raise FileNotFoundError("CSV file not found") ##
     try:
         df = pd.read_csv(file_path, skiprows=2)
         return df
