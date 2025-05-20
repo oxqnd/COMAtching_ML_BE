@@ -6,7 +6,7 @@ from app.config import RABBITMQ_URL, ML_BE_URL, ML_BE_PORT
 
 async def consume_from_classifier_queue():
     try:
-        connection = await aio_pika.connect_robust(RABBITMQ_URL)
+        connection = await aio_pika.connect_robust(RABBITMQ_URL) ###
         async with connection:
             channel = await connection.channel()
             queue = await channel.declare_queue('classifier', durable=True)
