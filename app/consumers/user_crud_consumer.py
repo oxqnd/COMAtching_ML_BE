@@ -8,7 +8,7 @@ async def consume_user_crud_queue():
     try:
         connection = await aio_pika.connect_robust(RABBITMQ_URL)
         async with connection:
-            channel = await connection.channel()
+            channel = await connection.channel() ###
             queue = await channel.declare_queue('user-crud', durable=True)
 
             async for message in queue:
