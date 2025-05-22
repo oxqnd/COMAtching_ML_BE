@@ -7,3 +7,5 @@ aio_pika
 aiohttp
 requests
 openai
+scikit-learn
+numpy

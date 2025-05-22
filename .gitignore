@@ -173,3 +173,4 @@ nohup.out
 *.log
 .csv
 scripts/
+DB/
